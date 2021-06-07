@@ -10,8 +10,6 @@ from zipfile import ZipFile, ZIP_DEFLATED
 EXTENSION_TXT = '.txt.acmi'
 EXTENSION_ZIP = '.zip.acmi'
 
-NO_EXTENSION = 'no_extension'
-
 
 def main():
     filename_input, is_zip = find_input_file()
