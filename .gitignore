@@ -1,6 +1,8 @@
 *.zip.acmi
 *.txt.acmi
 
+release/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
