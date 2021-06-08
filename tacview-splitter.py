@@ -29,14 +29,18 @@ def main():
 
 
 def move_content_to_output_files(tacview_lines_no_header: list[str], descriptors: Descriptors) -> list[str]:
-    # core routine: process all the lines, put them in the correct output file
-    blue_ids = []
-    red_ids = []
+    """
+    core routine: process all telemetry lines, put them in the correct output file
+    for lines that are time stamps, we put these in all output files
+    :param tacview_lines_no_header: tacview telemetry, header removed
+    :param descriptors: holding all the opened descriptors
+    :return: list of unit ids that belong to neither blue, red, nor violet
+    """
+    #
+    blue_ids, red_ids, violet_ids, undecided_ids = (list() for _ in range(4))
     # violet = neutral faction, used for chaffs, flares, decoys and shrapnel. we can't decide easily which faction
     # they belong to. we would need to find the blue or red object with the least distance to violet objects
     # around their spawn time
-    violet_ids = []
-    undecided_ids = []
     continued = False
     for line in tacview_lines_no_header:
         # tacview introduced continued lines, signified by a single backslash at EOL
@@ -67,7 +71,7 @@ def move_content_to_output_files(tacview_lines_no_header: list[str], descriptors
             line_output = line
         # code checker thinks that id_ can be unbound, which it cannot
         # noinspection PyUnboundLocalVariable
-        if id_ in blue_ids or id_ == 'both':  # 'both@ refers to timestamps
+        if id_ in blue_ids or id_ == 'both':
             descriptors.blue_txt.write(line_output)
         if id_ in red_ids or id_ == 'both':
             descriptors.red_txt.write(line_output)
@@ -102,7 +106,7 @@ def move_header_to_output_files(tacview_lines: list[str], descriptors: Descripto
             break
     else:
         raise IOError('Tacview file seems to be empty')
-    return tacview_lines[i:]  # remove the header, we don't need it anymore
+    return tacview_lines[i:]
 
 
 def read_data(filenames: Filenames) -> list[str]:
