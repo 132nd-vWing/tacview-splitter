@@ -117,7 +117,7 @@ def read_data(filenames: Filenames) -> list[str]:
     """
     if filenames.input.is_zip:
         with ZipFile(filenames.input.zip) as fd_zip:
-            with fd_zip.open(filenames.input.txt) as fd_tacview:
+            with fd_zip.open(fd_zip.filelist[0].filename) as fd_tacview:
                 tacview_lines_binary = fd_tacview.readlines()
         tacview_lines_ascii = []
         for line in tacview_lines_binary:
