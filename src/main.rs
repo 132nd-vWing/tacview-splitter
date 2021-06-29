@@ -119,9 +119,9 @@ fn get_output_filenames(input_filename: &String) -> lib::OutputFilenames {
     let violet = input_filename.replace(".zip", "_violet.zip");
     let output_filenames_zip = lib::FilenamesVariant{blue, red, violet};
 
-    let blue = input_filename.replace(".zip", "_blue.txt");
-    let red = input_filename.replace(".zip", "_red.txt");
-    let violet = input_filename.replace(".zip", "_violet.txt");
+    let blue = input_filename.replace(".txt", "_blue.txt");
+    let red = input_filename.replace(".txt", "_red.txt");
+    let violet = input_filename.replace(".txt", "_violet.txt");
     let output_filenames_txt = lib::FilenamesVariant{blue, red, violet};
 
     let output_filenames = lib::OutputFilenames{txt: output_filenames_txt, zip: output_filenames_zip};
