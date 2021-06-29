@@ -3,7 +3,7 @@ use std::{fs, str};
 use std::io::{BufRead, BufReader};
 use zip;
 use tacview_splitter::lib;
-use tacview_splitter::lib::WriteData;
+use tacview_splitter::lib::Handling;
 
 const COMMENT: char = '#';
 const MINUS: char = '-';
@@ -15,9 +15,6 @@ const TIMESTAMP: u8 = 1;
 const DESTRUCTION: u8 = 2;
 const TELEMETRY: u8 = 3;
 
-const ERR_CANNOT_OPEN_OUTPUT: &str = "Could not open output file";
-
-
 fn main() {
     let (input_filename, is_zip) = find_input_file();
     println!("Processing {}", input_filename);
@@ -27,11 +24,11 @@ fn main() {
 
     let output_filenames = get_output_filenames(&input_filename);
     if is_zip {
-        let mut descriptors = get_descriptors_zip(output_filenames);
-        descriptors.write(header, bodies_by_coalition)
+        let mut descriptors = lib::Descriptors::new_for_zip(output_filenames);
+        descriptors.write(header, bodies_by_coalition);
     } else {
-        let mut descriptors = get_descriptors_txt(output_filenames);
-        descriptors.write(header, bodies_by_coalition)
+        let mut descriptors = lib::Descriptors::new_for_file(output_filenames);
+        descriptors.write(header, bodies_by_coalition);
     }
 }
 
@@ -46,7 +43,7 @@ fn split_into_header_and_body(lines: Vec<String>) -> (Vec<String>, Vec<String>) 
     return (lines[..i].to_vec(), lines[i..].to_vec());
 }
 
-fn divide_body_by_coalition(body: &'static Vec<String>) -> lib::BodiesByCoalition<'static> {
+fn divide_body_by_coalition(body: &Vec<String>) -> lib::BodiesByCoalition {
     let mut bbc = lib::BodiesByCoalition{blue: Vec::new(), red: Vec::new(), violet: Vec::new()};
     let mut continued = false;
     let mut line_type: u8 = UNKNOWN;
@@ -166,31 +163,3 @@ fn read_data(filename: &String, is_zip: bool) -> Vec<String> {
         lines
     }
 }
-
-fn get_descriptors_zip(filenames: lib::OutputFilenames) -> lib::DescriptorsZip {
-    let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
-
-    let file = fs::File::create(&filenames.zip.blue).expect(ERR_CANNOT_OPEN_OUTPUT);
-    let mut blue = zip::ZipWriter::new(file);
-    blue.start_file(&filenames.txt.blue, options).unwrap();
-
-    let file = fs::File::create(&filenames.zip.red).expect(ERR_CANNOT_OPEN_OUTPUT);
-    let mut red = zip::ZipWriter::new(file);
-    red.start_file(&filenames.txt.red, options).unwrap();
-
-    let file = fs::File::create(&filenames.zip.violet).expect(ERR_CANNOT_OPEN_OUTPUT);
-    let mut violet = zip::ZipWriter::new(file);
-    violet.start_file(&filenames.txt.violet, options).unwrap();
-
-    let descriptors = lib::DescriptorsZip{blue, red, violet};
-    descriptors
-}
-
-fn get_descriptors_txt(filenames: lib::OutputFilenames) -> lib::DescriptorsTxt {
-    let blue = fs::File::create(&filenames.txt.blue).expect(ERR_CANNOT_OPEN_OUTPUT);
-    let red = fs::File::create(&filenames.txt.red).expect(ERR_CANNOT_OPEN_OUTPUT);
-    let violet = fs::File::create(&filenames.txt.violet).expect(ERR_CANNOT_OPEN_OUTPUT);
-    let descriptors = lib::DescriptorsTxt{blue, red, violet};
-    descriptors
-}
-
