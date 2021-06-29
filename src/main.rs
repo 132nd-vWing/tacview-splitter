@@ -86,7 +86,7 @@ fn process_line<'a>(continued: bool, ids: &mut lib::IDs<'a>, line: &'a String, l
 
         if line_type == TELEMETRY {
             id = line
-                .split_once(',')
+                .split_once(',')  // TODO catch the None
                 .unwrap()
                 .0;
             //let id_str = id.to_string();
@@ -119,6 +119,7 @@ fn get_output_filenames(input_filename: &String) -> lib::OutputFilenames {
     let violet = input_filename.replace(".zip", "_violet.zip");
     let output_filenames_zip = lib::FilenamesVariant{blue, red, violet};
 
+    // TODO make sure the replace was successful
     let blue = input_filename.replace(".txt", "_blue.txt");
     let red = input_filename.replace(".txt", "_red.txt");
     let violet = input_filename.replace(".txt", "_violet.txt");
