@@ -9,3 +9,4 @@ zip = ">= 0.5.13"
 
 [profile.release]
 lto = true
+opt-level = 3
