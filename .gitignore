@@ -16,6 +16,7 @@ Cargo.lock
 testfiles
 perf.data*
 flamegraph*svg
+release/
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/intellij
