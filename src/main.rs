@@ -24,10 +24,10 @@ fn main() {
 
     let output_filenames = get_output_filenames(&input_filename);
     if is_zip {
-        let mut descriptors = lib::Descriptors::new_for_zip(output_filenames);
+        let mut descriptors = lib::Descriptors::<zip::ZipWriter<fs::File>>::new(output_filenames);
         descriptors.write(header, bodies_by_coalition);
     } else {
-        let mut descriptors = lib::Descriptors::new_for_file(output_filenames);
+        let mut descriptors = lib::Descriptors::<fs::File>::new(output_filenames);
         descriptors.write(header, bodies_by_coalition);
     }
 }

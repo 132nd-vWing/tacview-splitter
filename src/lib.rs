@@ -66,7 +66,7 @@ pub mod lib {
     }
 
     impl Descriptors<fs::File> {
-        pub fn new_for_file(filenames: OutputFilenames) -> Descriptors<fs::File> {
+        pub fn new(filenames: OutputFilenames) -> Descriptors<fs::File> {
             let blue = fs::File::create(&filenames.txt.blue).expect(ERR_CANNOT_OPEN_OUTPUT);
             let red = fs::File::create(&filenames.txt.red).expect(ERR_CANNOT_OPEN_OUTPUT);
             let violet = fs::File::create(&filenames.txt.violet).expect(ERR_CANNOT_OPEN_OUTPUT);
@@ -76,7 +76,7 @@ pub mod lib {
     }
 
     impl Descriptors<zip::ZipWriter<fs::File>> {
-        pub fn new_for_zip(filenames: OutputFilenames) -> Descriptors<zip::ZipWriter<fs::File>> {
+        pub fn new(filenames: OutputFilenames) -> Descriptors<zip::ZipWriter<fs::File>> {
             let options = zip::write::FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
 
             let file = fs::File::create(&filenames.zip.blue).expect(ERR_CANNOT_OPEN_OUTPUT);
