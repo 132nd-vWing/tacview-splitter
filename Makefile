@@ -24,7 +24,7 @@ release: test
 	cp ${BIN_WINDOWS} release/windows/tacview-splitter-${VERSION}
 	cd release/linux; tar -zcvf ${RELEASE_LINUX} tacview-splitter-${VERSION}; cp ${RELEASE_LINUX} ..
 	cd release/windows; 7z a ${RELEASE_WINDOWS} tacview-splitter-${VERSION}; cp ${RELEASE_WINDOWS} ..
-	cd release; sha256sum ${RELEASE_LINUX} ${RELEASE_WINDOWS} > sha256sums.txt
+	cd release; rm -rf linux windows; sha256sum ${RELEASE_LINUX} ${RELEASE_WINDOWS} > sha256sums.txt
 
 test: strip
 	for file in ${TEST_FILES}; do \
