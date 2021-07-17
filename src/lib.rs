@@ -116,4 +116,21 @@ pub mod lib {
 
 
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::lib::*;
+    #[test]
+    fn test_get_output_filenames_individual() {
+        let input_filename = "something.txt.acmi".to_string();
+        let extension = ".txt.acmi";
+        let coalition = "_blue";
+        let result = get_output_filenames_individual(&input_filename, extension, extension, coalition);
+        let correct_result = "something_blue.txt.acmi";
+        assert_eq!(result, correct_result);
+
+        let extension_wrong = ".tXT.acmi";
+        let result = get_output_filenames_individual(&input_filename, extension_wrong, extension, coalition);
+        assert_ne!(result, correct_result);
+    }
 }
