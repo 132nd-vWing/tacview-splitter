@@ -10,10 +10,13 @@ const MINUS: char = '-';
 const EXTENSION_ZIP: &str = ".zip.acmi";
 const EXTENSION_TXT: &str = ".txt.acmi";
 
-const UNKNOWN: u8 = 0;
-const TIMESTAMP: u8 = 1;
-const DESTRUCTION: u8 = 2;
-const TELEMETRY: u8 = 3;
+#[derive(PartialEq)]
+enum LineType {
+    Unknown,
+    Timestamp,
+    Destruction,
+    Telemetry
+}
 
 fn main() {
     let (input_filename, is_zip) = find_input_file();
@@ -46,14 +49,14 @@ fn split_into_header_and_body(lines: Vec<String>) -> (Vec<String>, Vec<String>) 
 fn divide_body_by_coalition(body: &Vec<String>) -> lib::BodiesByCoalition {
     let mut bbc = lib::BodiesByCoalition{blue: Vec::new(), red: Vec::new(), violet: Vec::new()};
     let mut continued = false;
-    let mut line_type: u8 = UNKNOWN;
+    let mut line_type = LineType::Unknown;
     let mut ids = lib::IDs{blue: Vec::new(), red: Vec::new(), violet: Vec::new(), unknown: Vec::new()};
     for line in body {
         let result = process_line(continued, &mut ids, line, line_type);
         line_type = result.0;
         continued = result.1;
         let id = result.2;
-        if line_type == TIMESTAMP {
+        if line_type == LineType::Timestamp {
             bbc.blue.push(line);
             bbc.red.push(line);
             bbc.violet.push(line);
@@ -70,14 +73,14 @@ fn divide_body_by_coalition(body: &Vec<String>) -> lib::BodiesByCoalition {
     bbc
 }
 
-fn process_line<'a>(continued: bool, ids: &mut lib::IDs<'a>, line: &'a String, last_line_type: u8) -> (u8, bool, &'a str) {
+fn process_line<'a>(continued: bool, ids: &mut lib::IDs<'a>, line: &'a String, last_line_type: LineType) -> (LineType, bool, &'a str) {
     let mut id = "both";
     let line_type;
     let will_continue: bool;
     if !continued {
         line_type = find_line_type(line);
 
-        if line_type == TELEMETRY {
+        if line_type == LineType::Telemetry {
             id = line
                 .split_once(',')  // TODO catch the None
                 .unwrap()
@@ -106,16 +109,16 @@ fn process_line<'a>(continued: bool, ids: &mut lib::IDs<'a>, line: &'a String, l
     (line_type, will_continue, id)
 }
 
-fn find_line_type(line: &String) -> u8 {
-    let line_type: u8;
+fn find_line_type(line: &String) -> LineType {
+    let line_type: LineType;
 
     let first_char = line.chars().nth(0).expect("malformed line");
     if first_char == COMMENT {
-        line_type = TIMESTAMP;
+        line_type = LineType::Timestamp;
     } else if first_char == MINUS {
-        line_type = DESTRUCTION;
+        line_type = LineType::Destruction;
     } else {
-        line_type = TELEMETRY;
+        line_type = LineType::Telemetry;
     }
     return line_type
 }
