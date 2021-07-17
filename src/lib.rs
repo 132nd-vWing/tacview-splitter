@@ -96,4 +96,23 @@ pub mod lib {
             descriptors
         }
     }
+
+    pub fn sanity_check_output_filenames(input_filename: &String, output_filenames: &FilenamesVariant) {
+        if input_filename == &output_filenames.blue ||
+            input_filename == &output_filenames.red ||
+            input_filename == &output_filenames.violet {
+            panic!("Output filenames were the same as input filenames")
+        }
+    }
+
+    pub fn get_output_filenames_individual(input_filename: &String, old_extension: &str, new_extension: &str, coalition: &str) -> String {
+        let mut output_extension = coalition.to_owned();
+        output_extension.push_str(new_extension);
+        let output_filename = input_filename.replace(old_extension, &output_extension);
+        output_filename
+    }
+
+
+
+}
 }

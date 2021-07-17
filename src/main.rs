@@ -3,7 +3,7 @@ use std::{fs, str};
 use std::io::{BufRead, BufReader};
 use zip;
 use tacview_splitter::lib;
-use tacview_splitter::lib::{Handling, FilenamesVariant};
+use tacview_splitter::lib::Handling;
 
 const COMMENT: char = '#';
 const MINUS: char = '-';
@@ -139,8 +139,8 @@ fn determine_line_type(line: &String) -> LineType {
 }
 
 fn get_output_filenames(input_filename: &String, is_zip: bool) -> lib::OutputFilenames {
-    let output_filenames_zip: FilenamesVariant;
-    let output_filenames_txt: FilenamesVariant;
+    let output_filenames_zip: lib::FilenamesVariant;
+    let output_filenames_txt: lib::FilenamesVariant;
 
     if is_zip {
         output_filenames_zip = get_output_filenames_for_extension(
@@ -169,27 +169,12 @@ fn get_output_filenames_dummy() -> lib::FilenamesVariant {
 }
 
 fn get_output_filenames_for_extension(input_filename: &String, old_extension: &str, new_extension: &str) -> lib::FilenamesVariant {
-    let blue = get_output_filenames_individual(input_filename, old_extension, new_extension, "_blue");
-    let red = get_output_filenames_individual(input_filename, old_extension,  new_extension,"_red");
-    let violet = get_output_filenames_individual(input_filename, old_extension,  new_extension,"_violet");
+    let blue = lib::get_output_filenames_individual(input_filename, old_extension, new_extension, "_blue");
+    let red = lib::get_output_filenames_individual(input_filename, old_extension,  new_extension,"_red");
+    let violet = lib::get_output_filenames_individual(input_filename, old_extension,  new_extension,"_violet");
     let output_filenames_zip = lib::FilenamesVariant{blue, red, violet};
-    sanity_check_output_filenames(input_filename, &output_filenames_zip);
+    lib::sanity_check_output_filenames(input_filename, &output_filenames_zip);
     output_filenames_zip
-}
-
-fn get_output_filenames_individual(input_filename: &String, old_extension: &str, new_extension: &str, coalition: &str) -> String {
-    let mut output_extension = coalition.to_owned();
-    output_extension.push_str(new_extension);
-    let output_filename = input_filename.replace(old_extension, &output_extension);
-    output_filename
-}
-
-fn sanity_check_output_filenames(input_filename: &String, output_filenames: &lib::FilenamesVariant) {
-    if input_filename == &output_filenames.blue ||
-        input_filename == &output_filenames.red ||
-        input_filename == &output_filenames.violet {
-            panic!("Output filenames were the same as input filenames")
-    }
 }
 
 fn find_input_file() -> (String, bool) {
