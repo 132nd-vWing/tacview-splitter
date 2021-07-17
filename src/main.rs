@@ -101,10 +101,12 @@ fn will_line_continue(line: &String) -> bool {
 }
 
 fn get_id_from_line(line: &String) -> &str {
-    let id = line
-        .split_once(',')  // TODO catch the None
-        .unwrap()
-        .0;
+    let result = line.split_once(',');
+    let split = match result {
+        Some(t) => t,
+        None => panic!("Could not get ID from line!")
+    };
+    let id = split.0;
     id
 }
 
@@ -141,15 +143,24 @@ fn get_output_filenames(input_filename: &String) -> lib::OutputFilenames {
     let red = input_filename.replace(".zip", "_red.zip");
     let violet = input_filename.replace(".zip", "_violet.zip");
     let output_filenames_zip = lib::FilenamesVariant{blue, red, violet};
+    sanity_check_output_filenames(input_filename, &output_filenames_zip);
 
-    // TODO make sure the replace was successful
     let blue = input_filename.replace(".txt", "_blue.txt");
     let red = input_filename.replace(".txt", "_red.txt");
     let violet = input_filename.replace(".txt", "_violet.txt");
     let output_filenames_txt = lib::FilenamesVariant{blue, red, violet};
+    sanity_check_output_filenames(input_filename, &output_filenames_txt);
 
     let output_filenames = lib::OutputFilenames{txt: output_filenames_txt, zip: output_filenames_zip};
     output_filenames
+}
+
+fn sanity_check_output_filenames(input_filename: &String, output_filenames: &lib::FilenamesVariant) {
+    if input_filename == &output_filenames.blue ||
+        input_filename == &output_filenames.red ||
+        input_filename == &output_filenames.violet {
+            panic!("Output filenames were the same as input filenames")
+    }
 }
 
 fn find_input_file() -> (String, bool) {
@@ -174,7 +185,7 @@ fn read_data(filename: &String, is_zip: bool) -> Vec<String> {
     let buf = BufReader::new(file);
     return if is_zip {
         let mut archive = zip::ZipArchive::new(buf).expect("Could not read zip data");
-        let inner_file = archive.by_index(0).unwrap();
+        let inner_file = archive.by_index(0).expect("Could not read telemetry file from zip archive");
         let inner_buf = BufReader::new(inner_file);
         let lines: Vec<String> = inner_buf.lines()
             .map(|l| l.expect("Could not parse line"))

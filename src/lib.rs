@@ -5,6 +5,7 @@ pub mod lib {
 
     const ERR_CANNOT_WRITE_DATA: &str = "Could not write data";
     const ERR_CANNOT_OPEN_OUTPUT: &str = "Could not open output file";
+    const ERR_CANNOT_BEGIN_FILE: &str = "Could not begin file in zip archive";
 
     pub struct IDs<'a>  {
         pub blue: Vec<&'a str>,
@@ -81,15 +82,15 @@ pub mod lib {
 
             let file = fs::File::create(&filenames.zip.blue).expect(ERR_CANNOT_OPEN_OUTPUT);
             let mut blue = zip::ZipWriter::new(file);
-            blue.start_file(&filenames.txt.blue, options).unwrap();
+            blue.start_file(&filenames.txt.blue, options).expect(ERR_CANNOT_BEGIN_FILE);
 
             let file = fs::File::create(&filenames.zip.red).expect(ERR_CANNOT_OPEN_OUTPUT);
             let mut red = zip::ZipWriter::new(file);
-            red.start_file(&filenames.txt.red, options).unwrap();
+            red.start_file(&filenames.txt.red, options).expect(ERR_CANNOT_BEGIN_FILE);
 
             let file = fs::File::create(&filenames.zip.violet).expect(ERR_CANNOT_OPEN_OUTPUT);
             let mut violet = zip::ZipWriter::new(file);
-            violet.start_file(&filenames.txt.violet, options).unwrap();
+            violet.start_file(&filenames.txt.violet, options).expect(ERR_CANNOT_BEGIN_FILE);
 
             let descriptors = Descriptors{blue, red, violet};
             descriptors
