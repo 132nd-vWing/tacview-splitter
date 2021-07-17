@@ -1,6 +1,7 @@
 pub mod lib {
     use std::io::Write;
     use std::fs;
+
     use zip;
 
     const ERR_CANNOT_WRITE_DATA: &str = "Could not write data";

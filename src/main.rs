@@ -1,7 +1,8 @@
 use std::{fs, str};
-
 use std::io::{BufRead, BufReader};
+
 use zip;
+
 use tacview_splitter::lib;
 use tacview_splitter::lib::Handling;
 
