@@ -7,6 +7,7 @@ use tacview_splitter::lib::Handling;
 
 const COMMENT: char = '#';
 const MINUS: char = '-';
+
 const EXTENSION_ZIP: &str = ".zip.acmi";
 const EXTENSION_TXT: &str = ".txt.acmi";
 
@@ -50,9 +51,9 @@ fn divide_body_by_coalition(body: &Vec<String>) -> lib::BodiesByCoalition {
     let mut bbc = lib::BodiesByCoalition{blue: Vec::new(), red: Vec::new(), violet: Vec::new()};
     let mut continued = false;
     let mut line_type = LineType::Unknown;
-    let mut ids = lib::IDs{blue: Vec::new(), red: Vec::new(), violet: Vec::new(), unknown: Vec::new()};
+    let mut coalitions = lib::IDs{blue: Vec::new(), red: Vec::new(), violet: Vec::new(), unknown: Vec::new()};
     for line in body {
-        let result = process_line(continued, &mut ids, line, line_type);
+        let result = process_line(continued, &mut coalitions, line, line_type);
         line_type = result.0;
         continued = result.1;
         let id = result.2;
@@ -61,11 +62,11 @@ fn divide_body_by_coalition(body: &Vec<String>) -> lib::BodiesByCoalition {
             bbc.red.push(line);
             bbc.violet.push(line);
         } else {  // destruction or telemetry
-            if ids.blue.contains(&id) {
+            if coalitions.blue.contains(&id) {
                 bbc.blue.push(line);
-            } else if ids.red.contains(&id) {
+            } else if coalitions.red.contains(&id) {
                 bbc.red.push(line);
-            } else if ids.violet.contains(&id) {
+            } else if coalitions.violet.contains(&id) {
                 bbc.violet.push(line);
             }
         }
@@ -73,43 +74,55 @@ fn divide_body_by_coalition(body: &Vec<String>) -> lib::BodiesByCoalition {
     bbc
 }
 
-fn process_line<'a>(continued: bool, ids: &mut lib::IDs<'a>, line: &'a String, last_line_type: LineType) -> (LineType, bool, &'a str) {
-    let mut id = "both";
+fn process_line<'a>(continued: bool, coalitions: &mut lib::IDs<'a>, line: &'a String, last_line_type: LineType) -> (LineType, bool, &'a str) {
+    let mut id = "";
     let line_type;
-    let will_continue: bool;
     if !continued {
-        line_type = find_line_type(line);
-
+        line_type = determine_line_type(line);
         if line_type == LineType::Telemetry {
-            id = line
-                .split_once(',')  // TODO catch the None
-                .unwrap()
-                .0;
-            //let id_str = id.to_string();
-            if line.contains("Color=") {
-                if line.contains("Color=Blue") {
-                    ids.blue.push(id);
-                } else if line.contains("Color=Red") {
-                    ids.red.push(id);
-                } else if line.contains("Color=Violet") {
-                    ids.violet.push(id);
-                } else {
-                    ids.unknown.push(id);
-                }
-            }
+            id = get_id_from_line(line);
+            assign_id_to_coalitions(coalitions, line, id)
         }
     } else {
         line_type = last_line_type;
     }
-    if line.ends_with("\\") {
-        will_continue = true;
-    } else {
-        will_continue = false;
-    }
-    (line_type, will_continue, id)
+    let line_will_continue = will_line_continue(line);
+    (line_type, line_will_continue, id)
 }
 
-fn find_line_type(line: &String) -> LineType {
+fn will_line_continue(line: &String) -> bool {
+    let line_will_continue: bool;
+    if line.ends_with("\\") {
+        line_will_continue = true;
+    } else {
+        line_will_continue = false;
+    }
+    line_will_continue
+}
+
+fn get_id_from_line(line: &String) -> &str {
+    let id = line
+        .split_once(',')  // TODO catch the None
+        .unwrap()
+        .0;
+    id
+}
+
+fn assign_id_to_coalitions<'a>(coalitions: &mut lib::IDs<'a>, line: &'a String, id: &'a str) {
+    if line.contains("Color=") {
+        if line.contains("Color=Blue") {
+            coalitions.blue.push(id);
+        } else if line.contains("Color=Red") {
+            coalitions.red.push(id);
+        } else if line.contains("Color=Violet") {
+            coalitions.violet.push(id);
+        } else {
+            coalitions.unknown.push(id);
+        }
+    }
+}
+
+fn determine_line_type(line: &String) -> LineType {
     let line_type: LineType;
 
     let first_char = line.chars().nth(0).expect("malformed line");
