@@ -75,14 +75,7 @@ fn process_line<'a>(continued: bool, ids: &mut lib::IDs<'a>, line: &'a String, l
     let line_type;
     let will_continue: bool;
     if !continued {
-        let first_char = line.chars().nth(0).expect("malformed line");
-        if first_char == COMMENT {
-            line_type = TIMESTAMP;
-        } else if first_char == MINUS {
-            line_type = DESTRUCTION;
-        } else {
-            line_type = TELEMETRY;
-        }
+        line_type = find_line_type(line);
 
         if line_type == TELEMETRY {
             id = line
@@ -111,6 +104,20 @@ fn process_line<'a>(continued: bool, ids: &mut lib::IDs<'a>, line: &'a String, l
         will_continue = false;
     }
     (line_type, will_continue, id)
+}
+
+fn find_line_type(line: &String) -> u8 {
+    let line_type: u8;
+
+    let first_char = line.chars().nth(0).expect("malformed line");
+    if first_char == COMMENT {
+        line_type = TIMESTAMP;
+    } else if first_char == MINUS {
+        line_type = DESTRUCTION;
+    } else {
+        line_type = TELEMETRY;
+    }
+    return line_type
 }
 
 fn get_output_filenames(input_filename: &String) -> lib::OutputFilenames {
