@@ -3,7 +3,7 @@ use std::{fs, str};
 use std::io::{BufRead, BufReader};
 use zip;
 use tacview_splitter::lib;
-use tacview_splitter::lib::Handling;
+use tacview_splitter::lib::{Handling, FilenamesVariant};
 
 const COMMENT: char = '#';
 const MINUS: char = '-';
@@ -26,7 +26,7 @@ fn main() {
     let (header, body) = split_into_header_and_body(lines);
     let bodies_by_coalition = divide_body_by_coalition(&body);
 
-    let output_filenames = get_output_filenames(&input_filename);
+    let output_filenames = get_output_filenames(&input_filename, is_zip);
     if is_zip {
         let mut descriptors = lib::Descriptors::<zip::ZipWriter<fs::File>>::new(output_filenames);
         descriptors.write(header, bodies_by_coalition);
@@ -138,21 +138,50 @@ fn determine_line_type(line: &String) -> LineType {
     return line_type
 }
 
-fn get_output_filenames(input_filename: &String) -> lib::OutputFilenames {
-    let blue = input_filename.replace(".zip", "_blue.zip");
-    let red = input_filename.replace(".zip", "_red.zip");
-    let violet = input_filename.replace(".zip", "_violet.zip");
-    let output_filenames_zip = lib::FilenamesVariant{blue, red, violet};
-    sanity_check_output_filenames(input_filename, &output_filenames_zip);
+fn get_output_filenames(input_filename: &String, is_zip: bool) -> lib::OutputFilenames {
+    let output_filenames_zip: FilenamesVariant;
+    let output_filenames_txt: FilenamesVariant;
 
-    let blue = input_filename.replace(".txt", "_blue.txt");
-    let red = input_filename.replace(".txt", "_red.txt");
-    let violet = input_filename.replace(".txt", "_violet.txt");
-    let output_filenames_txt = lib::FilenamesVariant{blue, red, violet};
-    sanity_check_output_filenames(input_filename, &output_filenames_txt);
+    if is_zip {
+        output_filenames_zip = get_output_filenames_for_extension(
+            input_filename, EXTENSION_ZIP, EXTENSION_ZIP
+        );
+        output_filenames_txt = get_output_filenames_for_extension(
+            input_filename, EXTENSION_ZIP, EXTENSION_TXT
+        );
+    } else {
+        output_filenames_zip = get_output_filenames_dummy();
+        output_filenames_txt = get_output_filenames_for_extension(
+            input_filename, EXTENSION_TXT, EXTENSION_TXT
+        );
+    }
 
     let output_filenames = lib::OutputFilenames{txt: output_filenames_txt, zip: output_filenames_zip};
     output_filenames
+}
+
+fn get_output_filenames_dummy() -> lib::FilenamesVariant {
+    let blue = "".to_string();
+    let red = "".to_string();
+    let violet = "".to_string();
+    let output_filenames = lib::FilenamesVariant{blue, red, violet};
+    output_filenames
+}
+
+fn get_output_filenames_for_extension(input_filename: &String, old_extension: &str, new_extension: &str) -> lib::FilenamesVariant {
+    let blue = get_output_filenames_individual(input_filename, old_extension, new_extension, "_blue");
+    let red = get_output_filenames_individual(input_filename, old_extension,  new_extension,"_red");
+    let violet = get_output_filenames_individual(input_filename, old_extension,  new_extension,"_violet");
+    let output_filenames_zip = lib::FilenamesVariant{blue, red, violet};
+    sanity_check_output_filenames(input_filename, &output_filenames_zip);
+    output_filenames_zip
+}
+
+fn get_output_filenames_individual(input_filename: &String, old_extension: &str, new_extension: &str, coalition: &str) -> String {
+    let mut output_extension = coalition.to_owned();
+    output_extension.push_str(new_extension);
+    let output_filename = input_filename.replace(old_extension, &output_extension);
+    output_filename
 }
 
 fn sanity_check_output_filenames(input_filename: &String, output_filenames: &lib::FilenamesVariant) {
