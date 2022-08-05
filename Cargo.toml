@@ -2,10 +2,10 @@
 name = "tacview-splitter"
 version = "0.3.0"
 authors = ["132nd-Professor <132nd-Professor>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-zip = ">= 0.5.13"
+zip = ">= 0.6.2"
 
 [profile.release]
 lto = true
