@@ -1,4 +1,5 @@
 pub mod lib {
+    use std::collections::HashSet;
     use std::fs;
     use std::io::Write;
 
@@ -9,10 +10,10 @@ pub mod lib {
     const ERR_CANNOT_BEGIN_FILE: &str = "Could not begin file in zip archive";
 
     pub struct IDs<'a> {
-        pub blue: Vec<&'a str>,
-        pub red: Vec<&'a str>,
-        pub violet: Vec<&'a str>,
-        pub unknown: Vec<&'a str>,
+        pub blue: HashSet<&'a str>,
+        pub red: HashSet<&'a str>,
+        pub violet: HashSet<&'a str>,
+        pub unknown: HashSet<&'a str>,
     }
 
     pub struct Descriptors<T: Write> {

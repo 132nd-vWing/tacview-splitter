@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::io::{BufRead, BufReader};
 use std::{fs, str};
 
@@ -55,10 +56,10 @@ fn divide_body_by_coalition(body: &Vec<String>) -> lib::BodiesByCoalition {
     let mut continued = false;
     let mut line_type = LineType::Unknown;
     let mut coalitions = lib::IDs {
-        blue: Vec::new(),
-        red: Vec::new(),
-        violet: Vec::new(),
-        unknown: Vec::new(),
+        blue: HashSet::new(),
+        red: HashSet::new(),
+        violet: HashSet::new(),
+        unknown: HashSet::new(),
     };
     for line in body {
         let result = process_line(continued, &mut coalitions, line, line_type);
@@ -120,13 +121,13 @@ fn get_id_from_line(line: &str) -> &str {
 fn assign_id_to_coalitions<'a>(coalitions: &mut lib::IDs<'a>, line: &'a str, id: &'a str) {
     if line.contains("Color=") {
         if line.contains("Color=Blue") {
-            coalitions.blue.push(id);
+            coalitions.blue.insert(id);
         } else if line.contains("Color=Red") {
-            coalitions.red.push(id);
+            coalitions.red.insert(id);
         } else if line.contains("Color=Violet") {
-            coalitions.violet.push(id);
+            coalitions.violet.insert(id);
         } else {
-            coalitions.unknown.push(id);
+            coalitions.unknown.insert(id);
         }
     }
 }
