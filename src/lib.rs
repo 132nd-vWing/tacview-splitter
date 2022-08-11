@@ -1,6 +1,7 @@
 pub mod lib {
     use std::collections::HashSet;
     use std::fs;
+    use std::hash::Hash;
     use std::io::Write;
 
     use zip;
@@ -9,11 +10,32 @@ pub mod lib {
     const ERR_CANNOT_OPEN_OUTPUT: &str = "Could not open output file";
     const ERR_CANNOT_BEGIN_FILE: &str = "Could not begin file in zip archive";
 
-    pub struct IDs<'a> {
-        pub blue: HashSet<&'a str>,
-        pub red: HashSet<&'a str>,
-        pub violet: HashSet<&'a str>,
-        pub unknown: HashSet<&'a str>,
+    pub struct IDs<'a, S: AsRef<str> + Hash + Eq> {
+        pub blue: HashSet<&'a S>,
+        pub red: HashSet<&'a S>,
+        pub violet: HashSet<&'a S>,
+        pub unknown: HashSet<&'a S>,
+    }
+
+    impl<'a, S: AsRef<str> + Hash + Eq> IDs<'a, S> {
+        pub fn new() -> Self {
+            let blue = HashSet::new();
+            let red = HashSet::new();
+            let violet = HashSet::new();
+            let unknown = HashSet::new();
+            Self {
+                blue,
+                red,
+                violet,
+                unknown,
+            }
+        }
+    }
+
+    impl<'a, S: AsRef<str> + Hash + Eq> Default for IDs<'a, S> {
+        fn default() -> Self {
+            Self::new()
+        }
     }
 
     pub struct Descriptors<T: Write> {
@@ -39,31 +61,51 @@ pub mod lib {
         pub violet: String,
     }
 
-    pub struct BodiesByCoalition<'a> {
-        pub blue: Vec<&'a str>,
-        pub red: Vec<&'a str>,
-        pub violet: Vec<&'a str>,
+    pub struct BodiesByCoalition<'a, S: AsRef<str>> {
+        pub blue: Vec<&'a S>,
+        pub red: Vec<&'a S>,
+        pub violet: Vec<&'a S>,
+    }
+
+    impl<'a, S: AsRef<str>> BodiesByCoalition<'a, S> {
+        pub fn new() -> Self {
+            Self {
+                blue: vec![],
+                red: vec![],
+                violet: vec![],
+            }
+        }
+    }
+
+    impl<'a, S: AsRef<str>> Default for BodiesByCoalition<'a, S> {
+        fn default() -> Self {
+            Self::new()
+        }
     }
 
     pub trait Handling {
-        fn write(&mut self, header: Vec<String>, bodies_by_coalition: BodiesByCoalition);
+        fn write<S: AsRef<str>>(&mut self, header: &[S], bodies_by_coalition: BodiesByCoalition<S>);
     }
 
     impl<T: Write> Handling for Descriptors<T> {
-        fn write(&mut self, header: Vec<String>, bodies_by_coalition: BodiesByCoalition) {
-            for line in &header {
-                writeln!(self.blue, "{}", line).expect(ERR_CANNOT_WRITE_DATA);
-                writeln!(self.red, "{}", line).expect(ERR_CANNOT_WRITE_DATA);
-                writeln!(self.violet, "{}", line).expect(ERR_CANNOT_WRITE_DATA);
+        fn write<S: AsRef<str>>(
+            &mut self,
+            header: &[S],
+            bodies_by_coalition: BodiesByCoalition<S>,
+        ) {
+            for line in header {
+                writeln!(self.blue, "{}", line.as_ref()).expect(ERR_CANNOT_WRITE_DATA);
+                writeln!(self.red, "{}", line.as_ref()).expect(ERR_CANNOT_WRITE_DATA);
+                writeln!(self.violet, "{}", line.as_ref()).expect(ERR_CANNOT_WRITE_DATA);
             }
-            for line in &bodies_by_coalition.blue {
-                writeln!(self.blue, "{}", line).expect(ERR_CANNOT_WRITE_DATA);
+            for line in bodies_by_coalition.blue {
+                writeln!(self.blue, "{}", line.as_ref()).expect(ERR_CANNOT_WRITE_DATA);
             }
-            for line in &bodies_by_coalition.red {
-                writeln!(self.red, "{}", line).expect(ERR_CANNOT_WRITE_DATA);
+            for line in bodies_by_coalition.red {
+                writeln!(self.red, "{}", line.as_ref()).expect(ERR_CANNOT_WRITE_DATA);
             }
-            for line in &bodies_by_coalition.violet {
-                writeln!(self.violet, "{}", line).expect(ERR_CANNOT_WRITE_DATA);
+            for line in bodies_by_coalition.violet {
+                writeln!(self.violet, "{}", line.as_ref()).expect(ERR_CANNOT_WRITE_DATA);
             }
         }
     }

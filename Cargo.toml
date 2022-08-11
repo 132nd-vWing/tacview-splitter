@@ -5,7 +5,7 @@ authors = ["132nd-Professor <132nd-Professor>"]
 edition = "2021"
 
 [dependencies]
-zip = ">= 0.6.2"
+zip = {version = ">= 0.6.2", default-features = false, features = ["deflate"]}
 
 [profile.release]
 lto = true
