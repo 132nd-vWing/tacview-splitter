@@ -1,48 +1,44 @@
 use crate::constants::{EXTENSION_TXT, EXTENSION_ZIP};
 use std::fs::{self, File};
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, Error, ErrorKind};
 
-pub fn find_input_file() -> (String, bool) {
-    let read_dir = fs::read_dir(".").expect("Could not read current directory");
+pub fn find_input_file() -> Result<(String, bool), Error> {
+    let read_dir = fs::read_dir(".")?;
 
     for entry_result in read_dir {
-        let entry = entry_result.expect("Could not parse DirEntry");
-        let path_buf = entry.path();
+        let path_buf = entry_result?.path();
         let filename = path_buf.to_string_lossy().to_string();
 
         if filename.ends_with(EXTENSION_TXT) {
-            return (filename, false);
+            return Ok((filename, false));
         } else if filename.ends_with(EXTENSION_ZIP) {
-            return (filename, true);
+            return Ok((filename, true));
         }
     }
-    println!("No tacview input file found in current directory.");
-    std::process::exit(1);
+    Err(Error::new(
+        ErrorKind::NotFound,
+        "No tacview input file found in current directory.",
+    ))
 }
 
-pub fn read_data(filename: &str, is_zip: bool) -> Vec<String> {
-    let file = fs::File::open(filename).expect("Could not read from input file");
+pub fn read_data(filename: &str, is_zip: bool) -> Result<Vec<String>, Error> {
+    let file = fs::File::open(filename)?;
     let buf = BufReader::new(file);
     if is_zip {
-        read_zip(buf)
+        Ok(read_zip(buf)?)
     } else {
-        read_txt(buf)
+        Ok(read_txt(buf)?)
     }
 }
 
-fn read_zip(buf: BufReader<File>) -> Vec<String> {
-    let mut archive = zip::ZipArchive::new(buf).expect("Could not read zip data");
-    let inner_file = archive
-        .by_index(0)
-        .expect("Could not read telemetry file from zip archive");
+fn read_zip(buf: BufReader<File>) -> Result<Vec<String>, Error> {
+    let mut archive = zip::ZipArchive::new(buf)?;
+    let inner_file = archive.by_index(0)?;
     let inner_buf = BufReader::new(inner_file);
-    read_txt(inner_buf)
+    Ok(read_txt(inner_buf)?)
 }
 
-fn read_txt<T: BufRead>(buf: T) -> Vec<String> {
-    let lines: Vec<String> = buf
-        .lines()
-        .map(|l| l.expect("Could not parse line"))
-        .collect();
-    lines
+fn read_txt<T: BufRead>(buf: T) -> Result<Vec<String>, Error> {
+    let lines: Vec<String> = buf.lines().map(|l|).collect();
+    Ok(lines)
 }
