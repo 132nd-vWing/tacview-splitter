@@ -6,6 +6,7 @@ edition = "2021"
 
 [dependencies]
 zip = {version = ">= 0.6.2", default-features = false, features = ["deflate"]}
+rayon = "*"
 
 [profile.release]
 lto = true
