@@ -5,7 +5,7 @@ use std::hash::Hash;
 use crate::constants::{COMMENT, MINUS};
 use crate::tacview::{Coalition, CoalitionIDs};
 
-pub fn split_into_header_and_body<S, E>(lines: &[S]) -> Result<(&[S], &[S]), ProcessingError>
+pub fn split_into_header_and_body<S>(lines: &[S]) -> Result<(&[S], &[S]), ProcessingError>
 where
     S: AsRef<str>,
 {
@@ -15,7 +15,7 @@ where
             .as_ref()
             .chars()
             .next()
-            .ok_or(ProcessingError::LineIsEmptyError)?
+            .ok_or(ProcessingError::CannotSplitIntoHeaderAndBody)?
             == COMMENT
         {
             break;
@@ -147,7 +147,7 @@ impl LineType {
 }
 
 #[derive(Debug)]
-enum ProcessingError {
+pub enum ProcessingError {
     LineIsEmptyError,
     UnknownLineType,
     CannotSplitIntoHeaderAndBody,

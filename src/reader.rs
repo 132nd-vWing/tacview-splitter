@@ -35,13 +35,13 @@ fn read_zip(buf: BufReader<File>) -> Result<Vec<String>, Error> {
     let mut archive = zip::ZipArchive::new(buf)?;
     let inner_file = archive.by_index(0)?;
     let inner_buf = BufReader::new(inner_file);
-    Ok(read_txt(inner_buf)?)
+    read_txt(inner_buf)
 }
 
 fn read_txt(buf: impl BufRead) -> Result<Vec<String>, Error> {
-    let lines: Vec<String> = buf
-        .lines()
-        .map(|l| l.expect("Could not read from the file"))
-        .collect();
+    let mut lines = vec![];
+    for line in buf.lines() {
+        lines.push(line?);
+    }
     Ok(lines)
 }
