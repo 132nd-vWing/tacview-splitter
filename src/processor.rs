@@ -2,8 +2,10 @@ use std::error::Error;
 use std::fmt::Display;
 use std::hash::Hash;
 
-use crate::constants::{COMMENT, MINUS};
 use crate::tacview::{Coalition, CoalitionIDs};
+
+const COMMENT: char = '#';
+const MINUS: char = '-';
 
 pub fn split_into_header_and_body<S>(lines: &[S]) -> Result<(&[S], &[S]), ProcessingError>
 where
