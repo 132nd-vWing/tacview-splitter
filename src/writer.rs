@@ -12,14 +12,14 @@ pub fn create_writer(
     coalition: &Coalition,
 ) -> Result<Box<dyn Write>, Box<dyn ErrTrait>> {
     let base_name = remove_extension(filename, is_zip);
+    let txt_name = format!("{base_name}_{coalition}{EXTENSION_TXT}");
+
     println!("writing {coalition}");
     if is_zip {
-        Ok(Box::new(create_zipwriter(
-            &format!("{base_name}_{coalition}{EXTENSION_ZIP}"),
-            &format!("{base_name}_{coalition}{EXTENSION_TXT}"),
-        )?))
+        let zip_name = format!("{base_name}_{coalition}{EXTENSION_ZIP}");
+        Ok(Box::new(create_zipwriter(&zip_name, &txt_name)?))
     } else {
-        Ok(Box::new(create_textwriter(base_name)?))
+        Ok(Box::new(create_textwriter(&txt_name)?))
     }
 }
 
