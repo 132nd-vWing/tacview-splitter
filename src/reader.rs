@@ -38,7 +38,10 @@ fn read_zip(buf: BufReader<File>) -> Result<Vec<String>, Error> {
     Ok(read_txt(inner_buf)?)
 }
 
-fn read_txt<T: BufRead>(buf: T) -> Result<Vec<String>, Error> {
-    let lines: Vec<String> = buf.lines().map(|l|).collect();
+fn read_txt(buf: impl BufRead) -> Result<Vec<String>, Error> {
+    let lines: Vec<String> = buf
+        .lines()
+        .map(|l| l.expect("Could not read from the file"))
+        .collect();
     Ok(lines)
 }

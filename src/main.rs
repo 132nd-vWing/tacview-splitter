@@ -18,7 +18,7 @@ fn main() {
 fn main_inner() -> Result<(), Box<dyn std::error::Error>> {
     let (input_filename, is_zip) = reader::find_input_file()?;
     println!("Processing {}", input_filename);
-    let lines = reader::read_data(&input_filename, is_zip);
+    let lines = reader::read_data(&input_filename, is_zip)?;
     let (header, body) = processor::split_into_header_and_body(&lines);
 
     let coalition_per_line = processor::divide_body_by_coalition(body);
