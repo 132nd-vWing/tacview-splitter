@@ -7,12 +7,12 @@ use crate::tacview::{Coalition, CoalitionIDs};
 const COMMENT: char = '#';
 const MINUS: char = '-';
 
-pub fn split_into_header_and_body<S>(lines: &[S]) -> Result<(&[S], &[S]), ProcessingError>
+pub fn split_into_header_and_body<S>(mut lines: Vec<S>) -> Result<(Vec<S>, Vec<S>), ProcessingError>
 where
     S: AsRef<str>,
 {
-    let mut i = 0;
-    for line in lines {
+    let mut split_idx = 0;
+    for line in &lines {
         if line
             .as_ref()
             .chars()
@@ -22,9 +22,10 @@ where
         {
             break;
         }
-        i += 1;
+        split_idx += 1;
     }
-    Ok((&lines[..i], &lines[i..]))
+    let body = lines.split_off(split_idx);
+    Ok((lines, body))
 }
 
 pub fn divide_body_by_coalition<S>(body: &[S]) -> Result<Vec<Coalition>, Box<dyn Error>>
