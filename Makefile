@@ -6,11 +6,11 @@ RELEASE_WINDOWS=tacview-splitter-win10-x86_64.zip
 BIN_LINUX=target/x86_64-unknown-linux-gnu/release/tacview-splitter
 BIN_WINDOWS=target/x86_64-pc-windows-gnu/release/tacview-splitter.exe
 
-TEST_FILES=Tacview-20220811-204919-DCS-Georgia-At-War-v3.0.24_afternoon.zip.acmi
+TEST_FILES=Tacview-20210606-222650-DCS-ATRM_2.7.0.443.txt.acmi Tacview-20210606-222650-DCS-ATRM_2.7.0.443.zip.acmi Tacview-20210608-085030-DCS-Georgia_At_War_v3.0.24_afternoon.txt.acmi Tacview-20210608-085030-DCS-Georgia_At_War_v3.0.24_afternoon.zip.acmi
 
 default: release
 
-.built:
+.built: src/*.rs
 	cargo build --release --target x86_64-unknown-linux-gnu
 	cargo build --release --target x86_64-pc-windows-gnu
 	touch .built
@@ -24,6 +24,7 @@ build: .built
 		if [[ $$? != 0 ]]; then exit 1; fi;\
 		cd test; \
 		../${BIN_LINUX}; \
+		if [[ $$? != 0 ]]; then exit 1; fi;\
 		cd ../ ; \
 		rm -rf test ; \
 	done
