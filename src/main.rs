@@ -29,25 +29,36 @@ fn main_inner() -> Result<(), Box<dyn std::error::Error>> {
     let body = Arc::new(body);
     let input_filename = Arc::new(input_filename);
 
-    let handles: Vec<_> = vec![Coalition::Blue, Coalition::Red, Coalition::Purple]
-        .into_iter()
-        .map(|c| {
+    let coalitions = vec![Coalition::Blue, Coalition::Red, Coalition::Purple];
+
+    // clippy wants us to combine both ierators into one. this is not what we want, because then
+    // we would spawn a thread, join it, and only then spawn a new one.
+    #[allow(clippy::needless_collect)]
+    let handles: Vec<_> = coalitions
+        .iter()
+        .map(|coalition| {
             let z = is_zip;
             let b = body.clone();
-            let coalitions = coalition_per_line.clone();
+            let cpl = coalition_per_line.clone();
+            let c = coalition.clone();
             let h = header.clone();
             let i = input_filename.clone();
             thread::spawn(move || {
                 let mut writer = writer::create_writer(z, &*i.clone(), &c).unwrap();
                 writer.write_strings(&*h).unwrap();
-                writer.write_for_coalition(&*b, &*coalitions, c).unwrap();
+                writer.write_for_coalition(&*b, &*cpl, c).unwrap();
             })
         })
         .collect();
 
-    for handle in handles {
-        handle.join().unwrap();
-    }
+    let _: Vec<_> = handles
+        .into_iter()
+        .zip(coalitions)
+        .map(|(h, c)| {
+            h.join()
+                .unwrap_or_else(|_| println!("could not write data for {c}"))
+        })
+        .collect();
 
     Ok(())
 }
