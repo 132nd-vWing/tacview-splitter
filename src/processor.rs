@@ -6,6 +6,7 @@ use crate::tacview::{Coalition, CoalitionIDs};
 
 const COMMENT: char = '#';
 const MINUS: char = '-';
+const ZERO: char = '0';
 
 pub fn split_into_header_and_body<S>(mut lines: Vec<S>) -> Result<(Vec<S>, Vec<S>), ProcessingError>
 where
@@ -57,12 +58,18 @@ impl Line {
         current_line: &'a S,
         coalition_ids: &mut CoalitionIDs<'a>,
     ) -> Result<Self, ProcessingError> {
+        println!("{}", current_line.as_ref());
         let line_type = match old_line.continued {
             true => old_line.line_type,
             false => LineType::find_type(current_line)?,
         };
 
         match line_type {
+            LineType::ArbitraryData => Ok(Line::new(
+                line_type,
+                Self::will_line_continue(current_line),
+                Coalition::All,
+            )),
             LineType::Telemetry => Ok(Line::from_content(line_type, current_line, coalition_ids)?),
             LineType::Timestamp => Ok(Line::new(line_type, false, Coalition::All)),
             LineType::Destruction => {
@@ -116,7 +123,7 @@ impl Line {
         } else {
             Ok(local_line
                 .split_once(',')
-                .ok_or(ProcessingError::CannotGetIDFromLine)?
+                .ok_or_else(|| ProcessingError::CannotGetIDFromLine(local_line.to_owned()))?
                 .0)
         }
     }
@@ -142,6 +149,7 @@ enum LineType {
     Timestamp,
     Destruction,
     Telemetry,
+    ArbitraryData,
 }
 
 impl LineType {
@@ -155,6 +163,8 @@ impl LineType {
             Ok(Self::Timestamp)
         } else if first_char == MINUS {
             Ok(Self::Destruction)
+        } else if first_char == ZERO {
+            Ok(LineType::ArbitraryData)
         } else {
             Ok(LineType::Telemetry)
         }
@@ -166,7 +176,7 @@ pub enum ProcessingError {
     LineIsEmptyError,
     UnknownLineType,
     CannotSplitIntoHeaderAndBody,
-    CannotGetIDFromLine,
+    CannotGetIDFromLine(String),
 }
 
 impl Error for ProcessingError {}
@@ -179,7 +189,7 @@ impl Display for ProcessingError {
             Self::CannotSplitIntoHeaderAndBody => {
                 write!(f, "cannot split the file into header and body")
             }
-            Self::CannotGetIDFromLine => write!(f, "cannot get unit ID from line"),
+            Self::CannotGetIDFromLine(l) => write!(f, "cannot get unit ID from line: \n{l}"),
         }
     }
 }
