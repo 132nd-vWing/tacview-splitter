@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::fmt::Display;
 
 #[derive(PartialEq, Clone)]
 pub enum Coalition {
@@ -25,6 +26,21 @@ impl Coalition {
 
     pub fn line_contains_coalition<S: AsRef<str>>(line: &S) -> bool {
         line.as_ref().contains("Color=")
+    }
+}
+
+impl Display for Coalition {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Blue => "blue".to_string(),
+                Self::Red => "red".to_string(),
+                Self::Purple => "purple".to_string(),
+                _ => unreachable!("We never need these variants"),
+            }
+        )
     }
 }
 

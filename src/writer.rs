@@ -6,12 +6,16 @@ use std::io::{Error, Write};
 use zip::write::FileOptions;
 use zip::ZipWriter;
 
-pub fn create_writer(is_zip: bool, filename: &str) -> Result<Box<dyn Write>, Box<dyn ErrTrait>> {
+pub fn create_writer(
+    is_zip: bool,
+    filename: &str,
+    coalition: &Coalition,
+) -> Result<Box<dyn Write>, Box<dyn ErrTrait>> {
     let base_name = remove_extension(filename, is_zip);
     if is_zip {
         Ok(Box::new(create_zipwriter(
-            &format!("{base_name}{EXTENSION_ZIP}"),
-            &format!("{base_name}{EXTENSION_TXT}"),
+            &format!("{base_name}_{coalition}{EXTENSION_ZIP}"),
+            &format!("{base_name}_{coalition}{EXTENSION_TXT}"),
         )?))
     } else {
         Ok(Box::new(create_textwriter(base_name)?))
@@ -31,6 +35,7 @@ fn create_textwriter(filename: &str) -> Result<File, Error> {
 }
 
 fn create_zipwriter(outer_name: &str, inner_name: &str) -> Result<ZipWriter<File>, Error> {
+    println!("{outer_name} {inner_name}");
     let mut writer = ZipWriter::new(create_textwriter(outer_name)?);
     writer.start_file(
         inner_name,

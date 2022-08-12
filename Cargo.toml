@@ -10,3 +10,4 @@ zip = {version = ">= 0.6.2", default-features = false, features = ["deflate"]}
 [profile.release]
 lto = true
 opt-level = 3
+strip = "symbols"

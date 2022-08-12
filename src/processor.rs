@@ -76,7 +76,7 @@ impl Line {
         current_line: &'a S,
         coalition_ids: &mut CoalitionIDs<'a>,
     ) -> Result<Self, ProcessingError> {
-        let id = Self::get_id_from_line(current_line)?;
+        let id = Self::get_id_from_line(current_line, &line_type)?;
         let continued = Self::will_line_continue(current_line);
         let coalition = Self::assign_id_to_coalitions(coalition_ids, current_line, id);
         Ok(Line::new(line_type, continued, coalition))
@@ -100,12 +100,22 @@ impl Line {
         current_line.as_ref().ends_with('\\')
     }
 
-    fn get_id_from_line<S: AsRef<str>>(line: &S) -> Result<&str, ProcessingError> {
-        Ok(line
-            .as_ref()
-            .split_once(',')
-            .ok_or(ProcessingError::CannotGetIDFromLine)?
-            .0)
+    fn get_id_from_line<'a, S>(
+        line: &'a S,
+        line_type: &LineType,
+    ) -> Result<&'a str, ProcessingError>
+    where
+        S: AsRef<str>,
+    {
+        let local_line = line.as_ref();
+        if line_type == &LineType::Destruction {
+            Ok(&local_line[1..local_line.len()])
+        } else {
+            Ok(local_line
+                .split_once(',')
+                .ok_or(ProcessingError::CannotGetIDFromLine)?
+                .0)
+        }
     }
 
     fn new(line_type: LineType, continued: bool, coalition: Coalition) -> Self {
