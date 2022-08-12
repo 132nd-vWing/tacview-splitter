@@ -40,13 +40,12 @@ impl<'a> CoalitionIDs<'a> {
         Self { blue, red, purple }
     }
 
-    pub fn insert(&mut self, id: &'a str, coalition: Coalition) {
+    pub fn insert(&mut self, id: &'a str, coalition: &Coalition) {
         match coalition {
             Coalition::Blue => self.blue.insert(id),
             Coalition::Red => self.red.insert(id),
             Coalition::Purple => self.purple.insert(id),
-            Coalition::All => false,
-            Coalition::Unknown => false,
+            Coalition::All | Coalition::Unknown => false,
         };
     }
 }

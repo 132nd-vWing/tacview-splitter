@@ -87,7 +87,7 @@ impl Line {
     ) -> Coalition {
         if Coalition::line_contains_coalition(line) {
             let coalition = Coalition::from_line(line);
-            coalition_ids.insert(id, coalition.clone());
+            coalition_ids.insert(id, &coalition);
             coalition
         } else {
             Coalition::Unknown
