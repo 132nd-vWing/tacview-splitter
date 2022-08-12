@@ -78,7 +78,9 @@ impl Line {
     ) -> Result<Self, ProcessingError> {
         let id = Self::get_id_from_line(current_line, &line_type)?;
         let continued = Self::will_line_continue(current_line);
-        let coalition = Self::assign_id_to_coalitions(coalition_ids, current_line, id);
+        let coalition = Self::assign_id_to_coalitions(coalition_ids, current_line, id)
+            .unwrap_or(Coalition::Unknown); // happens for the authentication line at the end of
+                                            // a file that has verification enabled
         Ok(Line::new(line_type, continued, coalition))
     }
 
@@ -86,13 +88,13 @@ impl Line {
         coalition_ids: &mut CoalitionIDs<'a>,
         line: &S,
         id: &'a str,
-    ) -> Coalition {
+    ) -> Option<Coalition> {
         if Coalition::line_contains_coalition(line) {
             let coalition = Coalition::from_line(line);
             coalition_ids.insert(id, &coalition);
-            coalition
+            Some(coalition)
         } else {
-            Coalition::Unknown
+            coalition_ids.get(id)
         }
     }
 

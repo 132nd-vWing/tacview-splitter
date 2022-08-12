@@ -38,7 +38,8 @@ impl Display for Coalition {
                 Self::Blue => "blue".to_string(),
                 Self::Red => "red".to_string(),
                 Self::Purple => "purple".to_string(),
-                _ => unreachable!("We never need these variants"),
+                Self::All => "all".to_string(),
+                Self::Unknown => "unknown".to_string(),
             }
         )
     }
@@ -63,5 +64,17 @@ impl<'a> CoalitionIDs<'a> {
             Coalition::Purple => self.purple.insert(id),
             Coalition::All | Coalition::Unknown => false,
         };
+    }
+
+    pub fn get(&self, id: &'a str) -> Option<Coalition> {
+        if self.blue.contains(id) {
+            Some(Coalition::Blue)
+        } else if self.red.contains(id) {
+            Some(Coalition::Red)
+        } else if self.purple.contains(id) {
+            Some(Coalition::Purple)
+        } else {
+            None
+        }
     }
 }

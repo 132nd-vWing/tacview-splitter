@@ -12,6 +12,7 @@ pub fn create_writer(
     coalition: &Coalition,
 ) -> Result<Box<dyn Write>, Box<dyn ErrTrait>> {
     let base_name = remove_extension(filename, is_zip);
+    println!("writing {coalition}");
     if is_zip {
         Ok(Box::new(create_zipwriter(
             &format!("{base_name}_{coalition}{EXTENSION_ZIP}"),
@@ -35,7 +36,6 @@ fn create_textwriter(filename: &str) -> Result<File, Error> {
 }
 
 fn create_zipwriter(outer_name: &str, inner_name: &str) -> Result<ZipWriter<File>, Error> {
-    println!("{outer_name} {inner_name}");
     let mut writer = ZipWriter::new(create_textwriter(outer_name)?);
     writer.start_file(
         inner_name,
