@@ -29,7 +29,7 @@ fn main_inner() -> Result<(), Box<dyn std::error::Error>> {
     let body = Arc::new(body);
     let input_filename = Arc::new(input_filename);
 
-    let coalitions = vec![Coalition::Blue, Coalition::Red, Coalition::Purple];
+    let coalitions = vec![Coalition::Blue, Coalition::Red, Coalition::Violet];
 
     // clippy wants us to combine both ierators into one. this is not what we want, because then
     // we would spawn a thread, join it, and only then spawn a new one.

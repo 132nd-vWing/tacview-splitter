@@ -5,7 +5,7 @@ use std::fmt::Display;
 pub enum Coalition {
     Blue,
     Red,
-    Purple,
+    Violet,
     All,
     Unknown,
 }
@@ -17,8 +17,8 @@ impl Coalition {
             Self::Blue
         } else if line.contains("Color=Red") {
             Self::Red
-        } else if line.contains("Color=Purple") {
-            Self::Purple
+        } else if line.contains("Color=Violet") {
+            Self::Violet
         } else {
             Self::Unknown
         }
@@ -37,7 +37,7 @@ impl Display for Coalition {
             match self {
                 Self::Blue => "blue".to_string(),
                 Self::Red => "red".to_string(),
-                Self::Purple => "purple".to_string(),
+                Self::Violet => "violet".to_string(),
                 Self::All => "all".to_string(),
                 Self::Unknown => "unknown".to_string(),
             }
@@ -48,20 +48,20 @@ impl Display for Coalition {
 pub struct CoalitionIDs<'a> {
     pub blue: HashSet<&'a str>,
     pub red: HashSet<&'a str>,
-    pub purple: HashSet<&'a str>,
+    pub violet: HashSet<&'a str>,
 }
 
 impl<'a> CoalitionIDs<'a> {
     pub fn new() -> Self {
-        let (blue, red, purple) = (HashSet::new(), HashSet::new(), HashSet::new());
-        Self { blue, red, purple }
+        let (blue, red, violet) = (HashSet::new(), HashSet::new(), HashSet::new());
+        Self { blue, red, violet }
     }
 
     pub fn insert(&mut self, id: &'a str, coalition: &Coalition) {
         match coalition {
             Coalition::Blue => self.blue.insert(id),
             Coalition::Red => self.red.insert(id),
-            Coalition::Purple => self.purple.insert(id),
+            Coalition::Violet => self.violet.insert(id),
             Coalition::All | Coalition::Unknown => false,
         };
     }
@@ -71,8 +71,8 @@ impl<'a> CoalitionIDs<'a> {
             Some(Coalition::Blue)
         } else if self.red.contains(id) {
             Some(Coalition::Red)
-        } else if self.purple.contains(id) {
-            Some(Coalition::Purple)
+        } else if self.violet.contains(id) {
+            Some(Coalition::Violet)
         } else {
             None
         }
