@@ -58,7 +58,6 @@ impl Line {
         current_line: &'a S,
         coalition_ids: &mut CoalitionIDs<'a>,
     ) -> Result<Self, ProcessingError> {
-        println!("{}", current_line.as_ref());
         let line_type = match old_line.continued {
             true => old_line.line_type,
             false => LineType::find_type(current_line)?,
