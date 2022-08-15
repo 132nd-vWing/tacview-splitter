@@ -29,7 +29,7 @@ where
     Ok((lines, body))
 }
 
-pub fn divide_body_by_coalition<S>(body: &[S]) -> Result<Vec<Coalition>>
+pub fn get_coalition_per_line<S>(body: &[S]) -> Result<Vec<Coalition>>
 where
     S: AsRef<str>,
 {
