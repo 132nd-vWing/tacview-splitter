@@ -43,16 +43,15 @@ where
         result.push(processed.coalition.clone());
         old_line = processed;
     }
-    sanity_check(&result, body);
+    sanity_check(&result, body)?;
     Ok(result)
 }
 
-fn sanity_check<S, T>(v1: &[S], v2: &[T]) {
+fn sanity_check<S, T>(v1: &[S], v2: &[T]) -> Result<()> {
     if v1.len() != v2.len() {
-        println!("Warning: data is inconsistent");
-        println!("{}", v1.len());
-        println!("{}", v2.len());
+        bail!("Warning: data is inconsistent\n{}\n{}", v1.len(), v2.len())
     }
+    Ok(())
 }
 
 struct Line {
