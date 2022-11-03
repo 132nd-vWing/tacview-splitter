@@ -7,6 +7,11 @@ mod writer;
 use anyhow::Result;
 
 fn main() -> Result<()> {
+    println!(
+        "{}, version {}",
+        env!("CARGO_PKG_NAME"),
+        env!("CARGO_PKG_VERSION")
+    );
     let (input_filename, is_zip) = reader::find_input_file()?;
     println!("Processing {}", input_filename);
 
