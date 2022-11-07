@@ -98,6 +98,7 @@ where
     }
 }
 
+#[derive(Clone)]
 pub struct OutputData {
     input_filename: Arc<String>,
     is_zip: bool,
@@ -137,24 +138,28 @@ impl OutputData {
         let handles: Vec<_> = coalitions
             .iter()
             .map(|coalition| {
-                let z = self.is_zip;
-                let b = self.body.clone();
-                let cpl = self.coalition_per_line.clone();
-                let c = coalition.clone();
-                let h = self.header.clone();
-                let i = self.input_filename.clone();
+                let thread_self = self.clone();
+                let thread_coalition = coalition.clone();
 
                 thread::spawn(move || {
-                    let mut writer = create_writer(z, &i.clone(), &c)
-                        .with_context(|| format!("could not create writer for {c}"))
+                    let mut writer = create_writer(
+                        thread_self.is_zip,
+                        &thread_self.input_filename,
+                        &thread_coalition,
+                    )
+                    .with_context(|| format!("could not create writer for {thread_coalition}"))
+                    .unwrap();
+                    writer
+                        .write_strings(&thread_self.header)
+                        .with_context(|| format!("could not write header for {thread_coalition}"))
                         .unwrap();
                     writer
-                        .write_strings(&h)
-                        .with_context(|| format!("could not write header for {c}"))
-                        .unwrap();
-                    writer
-                        .write_for_coalition(&b, &cpl, &c)
-                        .with_context(|| format!("could not write body for {c}"))
+                        .write_for_coalition(
+                            &thread_self.body,
+                            &thread_self.coalition_per_line,
+                            &thread_coalition,
+                        )
+                        .with_context(|| format!("could not write body for {thread_coalition}"))
                         .unwrap();
                 })
             })
