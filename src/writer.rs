@@ -48,10 +48,23 @@ fn create_zipwriter(outer_name: &str, inner_name: &str) -> Result<ZipWriter<File
     Ok(writer)
 }
 
-pub trait StringWriter {
-    fn write_line<S: AsRef<str>>(&mut self, line: &S) -> Result<()>;
+pub trait StringWriter
+where
+    Self: Write,
+{
+    fn write_line<S>(&mut self, line: &S) -> Result<()>
+    where
+        S: AsRef<str>,
+    {
+        writeln!(self, "{}", line.as_ref()).with_context(|| "could not write line")
+    }
 
-    fn write_strings<S: AsRef<str>>(&mut self, lines: &[S]) -> Result<()>;
+    fn write_strings<S: AsRef<str>>(&mut self, lines: &[S]) -> Result<()> {
+        for line in lines {
+            self.write_line(line)?;
+        }
+        Ok(())
+    }
 
     fn write_for_coalition<S: AsRef<str>>(
         &mut self,
@@ -65,17 +78,6 @@ impl<T> StringWriter for T
 where
     T: Write,
 {
-    fn write_line<S: AsRef<str>>(&mut self, line: &S) -> Result<()> {
-        writeln!(self, "{}", line.as_ref()).with_context(|| "could not write line")
-    }
-
-    fn write_strings<S: AsRef<str>>(&mut self, lines: &[S]) -> Result<()> {
-        for line in lines {
-            self.write_line(line)?;
-        }
-        Ok(())
-    }
-
     fn write_for_coalition<S: AsRef<str>>(
         &mut self,
         lines: &[S],
