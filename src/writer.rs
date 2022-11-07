@@ -145,15 +145,15 @@ impl OutputData {
                 let i = self.input_filename.clone();
 
                 thread::spawn(move || {
-                    let mut writer = create_writer(z, &*i.clone(), &c)
+                    let mut writer = create_writer(z, &i.clone(), &c)
                         .with_context(|| format!("could not create writer for {c}"))
                         .unwrap();
                     writer
-                        .write_strings(&*h)
+                        .write_strings(&h)
                         .with_context(|| format!("could not write header for {c}"))
                         .unwrap();
                     writer
-                        .write_for_coalition(&*b, &*cpl, &c)
+                        .write_for_coalition(&b, &cpl, &c)
                         .with_context(|| format!("could not write body for {c}"))
                         .unwrap();
                 })
