@@ -6,7 +6,7 @@ edition = "2021"
 
 [dependencies]
 zip = {version = ">= 0.6.2", default-features = false, features = ["deflate"]}
-anyhow = {version = ">= 1.0", features = ["backtrace"]}
+anyhow = {version = ">= 1.0"}
 
 [profile.release]
 lto = true
